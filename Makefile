@@ -1,4 +1,4 @@
-.PHONY: all docker drone
+.PHONY: all docker drone run
 
 all: drone
 
@@ -7,3 +7,6 @@ docker:
 
 drone:
 	drone exec
+
+run:
+	cd docker/build && make run

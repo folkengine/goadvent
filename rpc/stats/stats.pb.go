@@ -4,8 +4,12 @@
 package stats
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -128,4 +132,84 @@ var fileDescriptor_1a7db0dc656c2f16 = []byte{
 	0x5e, 0x86, 0x46, 0xd3, 0xa7, 0x7a, 0xa3, 0x8f, 0x77, 0xb4, 0x93, 0xb1, 0xa8, 0x26, 0xea, 0xc7,
 	0x15, 0x2d, 0xab, 0x63, 0xe4, 0x70, 0xbe, 0xef, 0x7b, 0xfc, 0x09, 0x00, 0x00, 0xff, 0xff, 0xc3,
 	0x40, 0xcc, 0x37, 0xf8, 0x00, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// StatsServiceClient is the client API for StatsService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type StatsServiceClient interface {
+	Push(ctx context.Context, in *PushRequest, opts ...grpc.CallOption) (*PushResponse, error)
+}
+
+type statsServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewStatsServiceClient(cc *grpc.ClientConn) StatsServiceClient {
+	return &statsServiceClient{cc}
+}
+
+func (c *statsServiceClient) Push(ctx context.Context, in *PushRequest, opts ...grpc.CallOption) (*PushResponse, error) {
+	out := new(PushResponse)
+	err := c.cc.Invoke(ctx, "/stats.StatsService/Push", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// StatsServiceServer is the server API for StatsService service.
+type StatsServiceServer interface {
+	Push(context.Context, *PushRequest) (*PushResponse, error)
+}
+
+// UnimplementedStatsServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedStatsServiceServer struct {
+}
+
+func (*UnimplementedStatsServiceServer) Push(ctx context.Context, req *PushRequest) (*PushResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Push not implemented")
+}
+
+func RegisterStatsServiceServer(s *grpc.Server, srv StatsServiceServer) {
+	s.RegisterService(&_StatsService_serviceDesc, srv)
+}
+
+func _StatsService_Push_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PushRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StatsServiceServer).Push(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/stats.StatsService/Push",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StatsServiceServer).Push(ctx, req.(*PushRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _StatsService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "stats.StatsService",
+	HandlerType: (*StatsServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Push",
+			Handler:    _StatsService_Push_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rpc/stats/stats.proto",
 }
